@@ -10,10 +10,11 @@ public class UIScript : MonoBehaviour
     public float duration;
     public float fadeDuration;
     public Vector3 targetRotation;
+    public bool isClick;
     // Start is called before the first frame update
     void Start()
     {
-        
+        isClick = false;
     }
 
     // Update is called once per frame
@@ -34,7 +35,13 @@ public class UIScript : MonoBehaviour
     {
         /*Color originalColor = image_1.color;
         image_1.color = new Color();*/
-        image_1.DOFade(0, fadeDuration);
+        image_1.DOFade(0, fadeDuration).OnComplete(()=> isClick = true);
+
+        if (isClick == true) 
+        {
+            image_1.DOFade(1, fadeDuration).OnComplete(() => isClick = false);
+        }
+
     }
 
     public void Vent()
@@ -54,7 +61,12 @@ public class UIScript : MonoBehaviour
         sequence.Append(image_1.DOFade(0, fadeDuration));
         */
 
-        image_1.transform.DOScale(Vector3.zero, duration);
+        image_1.transform.DOScale(Vector3.zero, duration).OnComplete(()=> isClick = true);
+
+        if (isClick == true)
+        {
+            image_1.transform.DOScale(5, duration).OnComplete(() => isClick = false);
+        }
     }
 
     public void Eject()
@@ -69,7 +81,16 @@ public class UIScript : MonoBehaviour
     {
         image_1.transform.DOLocalMoveY(750, duration);
         image_1.transform.DOScale(Vector3.zero, duration);
-        image_1.DOFade(0, fadeDuration);
+        image_1.DOFade(0, fadeDuration).OnComplete(()=> isClick = true);
+
+        if (isClick == true)
+        {
+            image_1.transform.DOLocalMoveY(0, duration);
+            image_1.transform.DOScale(5, duration);
+            image_1.DOFade(1, fadeDuration).OnComplete(() => isClick = false);
+        }
+
+        
     }
 
     public void Flicker()
@@ -85,8 +106,17 @@ public class UIScript : MonoBehaviour
     public void FromBelow()
     {
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(image_1.transform.DOLocalMoveY(20, 0.2f));
-        sequence.Append(image_1.transform.DOLocalMoveY(-1920, duration));
+        Sequence sequence2 = DOTween.Sequence();
+        sequence.Append(image_1.transform.DOLocalMoveY(20, duration));
+        sequence.Append(image_1.transform.DOLocalMoveY(-1920, duration).SetEase(Ease.Linear).OnComplete(() => isClick = true));
+        
+        
+        if (isClick == true)
+        {
+            sequence.Kill();
+            sequence2.Append(image_1.transform.DOLocalMoveY(20, duration));
+            sequence2.Append(image_1.transform.DOLocalMoveY(0, duration).SetEase(Ease.Linear).OnComplete(() => isClick = false));
+        }
         
     }
 
